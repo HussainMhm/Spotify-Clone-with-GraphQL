@@ -1,9 +1,68 @@
 import { View, Text, StyleSheet, Image } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { usePlayerContext } from "../providers/PlayerProvider";
+import { useEffect, useState } from "react";
+import { AVPlaybackSource, AVPlaybackStatus, Audio } from "expo-av";
+import { Sound } from "expo-av/build/Audio";
 
 const Player = () => {
+    const [sound, setSound] = useState<Sound>();
+    const [isPlaying, setIsPlaying] = useState(false);
     const { track } = usePlayerContext();
+
+    // Play track when it changes
+    useEffect(() => {
+        playTrack();
+    }, [track]);
+
+    // Unload sound when component unmounts
+    useEffect(() => {
+        return sound
+            ? () => {
+                  console.log("Unloading Sound");
+                  sound.unloadAsync();
+              }
+            : undefined;
+    }, [sound]);
+
+    // Play track
+    const playTrack = async () => {
+        if (sound) {
+            await sound?.unloadAsync();
+        }
+
+        if (!track?.preview_url) {
+            return;
+        }
+        console.log("Playing track: ", track?.name);
+        const { sound: newSound } = await Audio.Sound.createAsync({ uri: track?.preview_url });
+
+        setSound(newSound);
+        newSound.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate);
+        await newSound?.playAsync();
+    };
+
+    const onPlaybackStatusUpdate = (status: AVPlaybackStatus) => {
+        console.log(status);
+        if (!status.isLoaded) {
+            return;
+        }
+
+        setIsPlaying(status.isPlaying);
+    };
+
+    // Pause track
+    const onPlayPause = async () => {
+        if (!sound) {
+            return;
+        }
+
+        if (isPlaying) {
+            await sound?.pauseAsync();
+        } else {
+            await sound?.playAsync();
+        }
+    };
 
     if (!track) {
         return null;
@@ -28,7 +87,8 @@ const Player = () => {
                     style={{ marginHorizontal: 10 }}
                 />
                 <Ionicons
-                    name={"pause"}
+                    onPress={onPlayPause}
+                    name={isPlaying ? "pause" : "play"}
                     disabled={!track?.preview_url}
                     size={22}
                     color={track?.preview_url ? "white" : "gray"}

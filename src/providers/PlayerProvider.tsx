@@ -12,7 +12,6 @@ const PlayerContext = createContext<PlayerContextType>({
 
 export default function PlayerProvider({ children }: PropsWithChildren) {
     const [track, setTrack] = useState<Track>();
-    console.log("track", track);
 
     return <PlayerContext.Provider value={{ track, setTrack }}>{children}</PlayerContext.Provider>;
 }
