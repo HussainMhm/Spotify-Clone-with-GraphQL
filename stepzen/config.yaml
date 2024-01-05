@@ -1,5 +1,8 @@
 configurationset:
-    - configuration:
-          name: auth_config
-          client_id: c226155bdcdb48908d6d0aeb829a0e8b
-          client_secret: b85ce2abf6a54272ab8a033834981a91
+  - configuration:
+      name: postgresql_config
+      uri: postgresql://ep-summer-dream-97499473.us-east-2.aws.neon.tech/neondb?user=sanji.mhm&password=eNiEJrcXW4G9
+  - configuration:
+      name: auth_config
+      client_id: c226155bdcdb48908d6d0aeb829a0e8b
+      client_secret: b85ce2abf6a54272ab8a033834981a91
